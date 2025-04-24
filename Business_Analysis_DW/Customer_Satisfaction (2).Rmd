@@ -1,0 +1,1426 @@
+---
+title: "<center> Understanding the Diners: Predicting and Improving Customer Satisfaction through Machine Learning <center>"
+author: "<center> Gonzalo Martinez Chavez - 13883534 <br> Hugo Chang - 14588897 </center>"
+date: "<center> `r Sys.Date()` <center>"
+output:
+  html_document:
+    number_sections: yes
+    fig_caption: yes
+    toc: yes
+    fig_width: 7
+    fig_height: 5
+    theme: cosmo
+    highlight: tango
+    code_folding: hide
+  pdf_document:
+    toc: yes
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, 
+                      comment = " ", error = FALSE, fig.align = 'center')
+```
+
+
+
+# Understanding the Research/Business Challenge (10 points)
+
+## Introduction
+
+In the competitive restaurant industry, understanding and driving customer satisfaction is critical to achieving long-term success and profitability. High levels of customer satisfaction are associated with repeat business, positive word-of-mouth, and increased engagement in loyalty programs, all of which contribute significantly to a restaurant's revenue. However, to effectively improve customer satisfaction, it is crucial to identify the specific aspects of the dining experience, such as service quality, food quality, wait times, and loyalty program membership,that have the most significant impact on customer perceptions and behaviors.
+
+### Business Problem
+The primary challenge for the restaurant is to determine which factors most strongly influence customer satisfaction, thereby driving repeat visits and customer loyalty. By identifying these key drivers, the restaurant can better allocate its resources to enhance the customer experience, making sure that it consistently meets or exceeds expectations. Understanding these factors is essential for making targeted improvements that can directly affect the restaurant’s bottom line.
+
+### Business Question
+The central question guiding this study is: **What are the main factors that contribute to high customer satisfaction in the restaurant?** By answering this question, the restaurant aims to discover the elements of the dining experience that are most valued by customers and that have the greatest potential to increase satisfaction levels.
+
+High customer satisfaction encourages customers to return, promotes loyalty, and fosters positive referrals, creating a cycle that supports the restaurant's profitability. Therefore, understanding which factors matter most—whether it is the quality of service, the taste and presentation of food, the ambiance, or other elements—will enable the restaurant to focus on these areas to create a more satisfying experience for its patrons.
+
+### Why Focus on This Topic?
+The choice to explore customer satisfaction in restaurants originates from the role that dining out plays in our everyday lives. Most people dine out regularly, whether for convenience, celebration, or simply to enjoy their favorite foods and venues. Everyone has a preferred restaurant they keep returning to, which makes understanding the dynamics of customer satisfaction in this context both relatable and impactful. By analyzing the data, we can search through what makes a restaurant a favorite and what factors encourage customers to return time and time again. It is an opportunity to uncover the elements that transform a one-time visit into a long-term preference, offering insights that are as relevant to the industry as they are to the everyday dining experiences of consumers.
+
+### Subquestions
+This analysis extends beyond identifying satisfaction drivers to explore predictive and operational strategies that leverage these insights. 
+
+- **Subquestion 1**: *How can the restaurant predict customer satisfaction based on demographic information and visit-specific variables?*  
+  This involves using customer data to forecast satisfaction levels, enabling the restaurant to personalize the dining experience and tailor its services to meet the needs of different customer segments. By doing so, the restaurant can optimize service delivery, anticipate customer needs, and improve overall satisfaction.
+
+- **Subquestion 2**: *How can we leverage this information to improve service and increase customer loyalty?*  
+  With a deep understanding of satisfaction drivers, the restaurant can make targeted operational improvements to enhance the dining experience. This includes refining service processes, reducing wait times, and offering personalized rewards through loyalty programs to encourage repeat visits. These efforts aim to turn satisfied customers into loyal clients, ultimately increasing customer retention and long-term profitability.
+
+By combining a thorough analysis of satisfaction factors with predictive modeling and strategic adjustments, the restaurant can better meet customer needs, enhance loyalty, and create a sustainable path to growth. The insights gained from this study will guide the restaurant in refining its operations and delivering an exceptional customer experience that fosters lasting relationships.
+
+# Theoretical Framework 
+
+## Main Business Question:
+**What are the main factors that contribute to high customer satisfaction in the restaurant?**
+
+### Theoretical Basis:
+The Service-Profit Chain theory places a strong emphasis on how customer satisfaction and loyalty drive profitability and growth. At its core, the theory posits that loyal customers are the primary source of profit, as their repeat business and referrals are far more valuable than constantly acquiring new customers (Kamakura et al., 2002). The key to cultivating this loyalty lies in delivering consistently high value to customers, which is directly influenced by employee performance and engagement. Satisfied and productive employees provide superior service, which enhances customer satisfaction, ultimately resulting in increased loyalty and long-term business success (Kim, 2013).
+
+A crucial aspect of this theory is the direct link between customer satisfaction and customer loyalty. Customers are more likely to remain loyal when they perceive that they are receiving value beyond just the product or service itself (Kamakura et al., 2002). This value can include convenience, speed, personal interactions, or problem-solving capabilities. For example, companies like Xerox learned that the difference between merely satisfied customers and highly satisfied customers (those who rated their experience as excellent) was significant, with highly satisfied customers being far more likely to repurchase and promote the brand (Putting the Service-Profit Chain to Work, 2016). This illustrates how companies that excel at meeting customer expectations are more likely to turn customers into loyal advocates, which is a crucial driver of profitability.
+
+Customer satisfaction itself is driven by the quality and value of service delivered. Customers judge value based on the benefits they receive relative to the costs they incur, which include both monetary and non-monetary factors such as time and effort (Kamakura et al., 2002). For instance, companies like Progressive Insurance create value by providing efficient and hassle-free claims processing, which saves their customers time and reduces stress. Such value-driven services increase customer satisfaction, making them more likely to stay loyal and spread positive word-of-mouth (Putting the Service-Profit Chain to Work, 2016). This concept reinforces the idea that companies must focus on delivering high-value experiences if they want to build and maintain a loyal customer base.
+
+Ultimately, the Service-Profit Chain theory highlights that to achieve sustainable growth, organizations must focus on creating positive customer experiences that lead to satisfaction and loyalty. While employees play a critical role in this, the theory emphasizes that businesses should prioritize the needs and expectations of their customers, as satisfied customers are the ones who will drive profit, growth, and a lasting competitive advantage (Putting the Service-Profit Chain to Work, 2016).
+
+### Variables to Analyze:
+- `ServiceRating` (Service-Profit Chain: responsiveness, reliability).
+- `FoodRating` (product quality).
+- `AmbianceRating` (tangibles, atmosphere).
+- `WaitTime` 
+- `DiningOccasion` (e.g., celebration vs. casual visits).
+
+### Hypotheses:
+- **H1**: `ServiceRating` and `FoodRating` will have the strongest positive impact on customer satisfaction.
+- **H2**: Shorter `WaitTime` will lead to higher customer satisfaction.
+- **H3**: The occasion of dining (e.g., celebrations) will impact satisfaction more than regular visits.
+
+### Approach:
+#### Exploratory Data Analysis (EDA):
+- Analyze correlations between service, food quality, ambiance, and customer satisfaction.
+- Use visualizations such as bar charts and scatter plots to display the impact of wait times, service ratings, and food quality on satisfaction.
+
+## Subquestion 1:
+**How can the restaurant predict customer satisfaction based on demographic information and visit-specific variables?**
+
+### Theoretical Basis:
+Customer Lifetime Value (CLV) provides the foundation for building predictive models. By understanding the expected value of a customer and their satisfaction patterns, the restaurant can predict future satisfaction levels and make more informed decisions. Expanding on the importance of customer loyalty, CLV serves as a critical metric in this context. It is defined as the present value of all future profits a customer generates throughout their relationship with a business (Gupta et al., 2006). By focusing on factors that drive customer satisfaction, such as service quality, ambiance, and food, the restaurant can maximize CLV, as higher satisfaction often translates into repeat visits and a longer customer lifespan. Studies have shown that even a small increase in customer retention, such as 5%, can significantly boost profits by 25% to 85% (Reichheld & Sasser, 1990). This makes understanding and improving the drivers of satisfaction essential for optimizing the restaurant’s long-term profitability.
+
+### Variables to Analyze:
+- Demographics: `Age`, `Income`, `Gender` (segment customers by these groups).
+- `VisitFrequency`: Analyze how frequent visitors’ satisfaction differs from occasional visitors.
+- `LoyaltyProgramMember`: Compare loyalty members vs. non-members to see how membership affects satisfaction.
+- `AverageSpend`: How does spending relate to satisfaction?
+
+### Hypotheses:
+- **H4**: Demographics such as `Income` and `Age` significantly influence customer satisfaction levels.
+- **H5**: `VisitFrequency` and `LoyaltyProgramMember` will predict higher satisfaction levels.
+
+### Approach:
+#### Predictive Modeling:
+- Build a logistic regression or random forest classification model using demographic data, visit-specific factors (e.g., group size, visit frequency), and satisfaction ratings.
+- Evaluate model performance using accuracy, precision, recall, and F1-score to determine how well the model predicts satisfaction.
+
+## Subquestion 2:
+**How can we leverage this information to improve service and increase customer loyalty?**
+
+### Theoretical Basis:
+Building on the insights provided by the Service-Profit Chain, the focus shifts to translating these insights into actionable strategies that enhance customer satisfaction and foster loyalty. By understanding the key drivers of satisfaction, the restaurant can make targeted adjustments to its operations that directly influence the likelihood of customers returning. This approach involves not only improving specific elements of service delivery, such as responsiveness and wait times, but also tailoring loyalty programs and experiences to meet the evolving needs of customers.
+
+By leveraging data on customer preferences, visit frequency, and satisfaction levels, the restaurant can customize its services and rewards programs to enhance the overall dining experience. For instance, offering tailored rewards for loyalty program members or personalized discounts based on past behavior can increase both visit frequency and customer spend. This personalization builds deeper emotional connections with customers, making them more likely to return and engage with the brand in the long run. Additionally, the focus on operational improvements is grounded in the idea of continuous service enhancement. By regularly analyzing customer feedback and satisfaction data, the restaurant can identify areas where customers are less satisfied and implement changes to address these issues.
+
+### Variables to Analyze:
+- `ServiceRating`: High-quality service has a direct impact on customer loyalty.
+- `LoyaltyProgramMember`: Understanding how loyalty program members perceive the service and how it impacts their return visits and recommendations.
+- `VisitFrequency`: Frequent visits often indicate loyalty, and understanding the needs of these customers is key to increasing their satisfaction.
+- `DiningOccasion`: Special events may create opportunities for loyalty-building strategies (e.g., rewards for celebrating birthdays at the restaurant).
+
+### Hypotheses:
+- **H6**: Improving `ServiceRating` and reducing `WaitTime` will lead to an increase in `LoyaltyProgramMembership` and `VisitFrequency`.
+- **H7**: Personalized rewards for loyalty members will increase `AverageSpend` and frequency of visits.
+
+### Approach:
+#### Operational Improvements:
+- Focus on the areas most strongly related to satisfaction, as identified through your predictive model.
+- Enhance service in the areas where customers report lower satisfaction, such as reducing wait times or improving the food quality for specific occasions.
+- Use the model's results to personalize loyalty programs, offering rewards or targeted promotions to frequent visitors or those with higher spending habits.
+
+
+
+
+
+
+
+# Data Preprocessing (15 points)
+
+**Load libraries**
+
+```{r message = FALSE, warning = FALSE}
+library(ggplot2)  # For the diamonds dataset and the ggplot function
+library(plyr)     # For the 'mutate' function
+library(liver)    # For the adult dataset
+library(forcats)  # For the "fct_collapse" function
+library(Hmisc)    # For missing values
+library(naniar)# For visualizing missing values
+library(ggcorrplot)
+library(naivebayes)
+```
+
+## Dataset Overview and Methodology
+
+### Data Source and Origin
+The dataset used in this research project provides detailed information on customer visits to restaurants, focusing on factors that impact customer satisfaction. It includes demographic data, visit-specific variables, and satisfaction ratings, making it suitable for predictive modeling in the hospitality industry. The raw data was originally created and shared by Rabie El Kharoua and is hosted on **Kaggle**, a popular online platform for data science and machine learning projects. The dataset is synthetic, generated for educational purposes, and is shared under the **CC BY 4.0 license**, allowing free use with appropriate attribution to the author. This ensures that while the data is not sourced from actual customer records, it maintains the structure and variability needed for effective analysis. The dataset can be accessed and downloaded via this [Kaggle link](https://www.kaggle.com/datasets/rabieelkharoua/predict-restaurant-customer-satisfaction-dataset?resource=download).
+
+**Read Data**
+
+```{r}
+satisfaction<- read.csv("restaurant_customer_satisfaction.csv")
+```
+
+
+Untreated data rarely suits algorithmic processing immediately. It typically requires refinement or "preprocessing".
+
+In order to observe the internal structure of the dataset and the objects, str() function is used:
+
+
+
+```{r}
+str(satisfaction)
+```
+From the dataset, we have a total of **1,500 observations** with **19 variables**. The variable `CustomerID` is used solely to represent the identity of each customer, making it essential for identification purposes but not included in the statistical or exploratory data analyses. Out of the remaining 18 variables, `HighSatisfaction` will serve as the **target variable**, indicating whether a customer is highly satisfied. Below is a detailed description of the variables included in the analysis:
+
+### Demographic Information
+- **`Age`** (Numerical-Continuous): Represents the age of the customer, ranging from 18 to 80 years.
+- **`Gender`** (Categorical-Nominal): Indicates the customer's gender with two categories—"Male" and "Female."
+- **`Income`** (Numerical-Continuous): Refers to the annual income of the customer in USD, ranging from $20,000 to $200,000.
+
+### Visit-Specific Variables
+- **`VisitFrequency`** (Categorical-Nominal): Indicates how often a customer visits the restaurant, with categories including "Daily," "Weekly," "Monthly," and "Rarely."
+- **`AverageSpend`** (Numerical-Continuous): Represents the average amount spent by the customer per visit in USD, ranging from $10 to $200.
+- **`PreferredCuisine`** (Categorical-Nominal): Specifies the type of cuisine the customer prefers, with options like "Italian," "Chinese," "Indian," "Mexican," and "American."
+- **`TimeOfVisit`** (Categorical-Nominal): Indicates the time of day the customer typically visits the restaurant—"Breakfast," "Lunch," or "Dinner."
+- **`GroupSize`** (Numerical-Discrete): Refers to the number of people in the customer's dining group, ranging from 1 to 10.
+- **`DiningOccasion`** (Categorical-Nominal): Describes the occasion of the visit, such as "Casual," "Business," or "Celebration."
+- **`MealType`** (Categorical-Nominal): Indicates whether the meal is "Dine-in" or "Takeaway."
+- **`OnlineReservation`** (Categorical-Binary): Indicates whether the customer made an online reservation (0 = No, 1 = Yes).
+- **`DeliveryOrder`** (Categorical-Binary): Specifies if the customer opted for a delivery order (0 = No, 1 = Yes).
+- **`LoyaltyProgramMember`** (Categorical-Binary): Shows whether the customer is a member of the restaurant's loyalty program (0 = No, 1 = Yes).
+- **`WaitTime`** (Numerical-Continuous): Indicates the average wait time for the customer during their visits, measured in minutes.
+
+### Satisfaction Ratings
+- **`ServiceRating`** (Numerical-Discrete): Customer's rating of the service on a scale of 1 to 5, where 1 is the lowest and 5 is the highest.
+- **`FoodRating`** (Numerical-Discrete): Customer's rating of the food quality on a scale of 1 to 5.
+- **`AmbianceRating`** (Numerical-Discrete): Customer's rating of the restaurant's ambiance on a scale of 1 to 5.
+
+### Target Variable
+- **`HighSatisfaction`** (Categorical-Binary): Indicates whether the customer is highly satisfied with their experience (1 = Yes, 0 = No).
+
+These variables provide a comprehensive basis for analyzing the factors that influence customer satisfaction in the restaurant setting. Understanding how demographic characteristics, visit-specific behaviors, and satisfaction ratings interact can provide valuable insights into what drives customer loyalty and preferences, helping to shape strategies for improving the dining experience.
+
+### Summary of data
+
+To summarize the data frame and understand the characteristics of each variable, the `summary()` function is utilized. This function provides a quick overview of key statistics such as the minimum, maximum, mean, and quartiles for numerical variables, as well as frequency counts for categorical variables.
+
+
+```{r}
+summary(satisfaction)
+```
+
+```{r}
+describe(satisfaction$HighSatisfaction)
+```
+
+
+## Missing values
+
+To ensure the dataset is ready for statistical analysis, it is important to assess the completeness of the data by checking for any missing values. In this analysis, the `summary()` function and a visual inspection of missing data were used. As illustrated in the plot below, there are **no missing values** in any of the variables included in the dataset. This ensures that the dataset is complete and can be used directly for regression analysis and predictive modeling without the need for imputation or handling missing data.
+
+
+```{r}
+gg_miss_var(satisfaction, show_pct = TRUE)
+```
+
+Since there are no missing values, the focus of the data preprocessing stage will shift to identifying and handling outliers to ensure that the analysis is not skewed by extreme values.
+
+**Visualise distribution of target variable**
+Before proceeding to outlier detection, it is important to examine the distribution of the target variable, `HighSatisfaction`. The plot below displays the count of observations for customers who are highly satisfied (`HighSatisfaction = 1`) versus those who are not (`HighSatisfaction = 0`).
+
+
+```{r fig.align = 'center'}
+ggplot(data = satisfaction) +
+    ggtitle('Distribution of HighSatisfaction') +
+    theme(plot.title = element_text(hjust = 0.5)) +
+    geom_histogram(aes(x = HighSatisfaction), binwidth = 0.5)
+```
+
+From the plot, it is evident that the dataset is highly imbalanced, with a significantly larger proportion of customers falling into the `HighSatisfaction = 0` category compared to the `HighSatisfaction = 1` category. This imbalance can pose challenges for predictive modeling, as models may be biased towards the majority class.
+
+```{r}
+summary(satisfaction$HighSatisfaction)
+```
+
+## Outlier Detection and Treatment
+
+After assessing the distribution of the key numerical variables, outlier detection was performed using boxplots to identify extreme values. Outliers can skew the analysis and affect the results of predictive models, so it is essential to address them before further analysis. The following boxplots illustrate the distribution and identification of outliers for each variable:
+
+- **Age**:
+  - Lower Bound: -6.125
+  - Upper Bound: 94.875
+  - Outliers were detected and replaced with the median age of **44**.
+
+- **Income**:
+  - Lower Bound: -47,628.875
+  - Upper Bound: 219,232.125
+  - Outliers were detected and replaced with the median income of **85,811**.
+
+- **AverageSpend**:
+  - Lower Bound: -67.25
+  - Upper Bound: 278.19
+  - Outliers were detected and replaced with the median value of **104.63**.
+
+- **GroupSize**:
+  - Lower Bound: -3
+  - Upper Bound: 13
+  - Outliers were detected and replaced with the median group size of **5**.
+
+- **WaitTime**:
+  - Lower Bound: -29.84
+  - Upper Bound: 90.36
+  - Outliers were detected and replaced with the median wait time of **30.04** minutes.
+
+The replacement of outliers with median values ensures that the dataset retains realistic ranges for these variables while minimizing the impact of extreme values. This preprocessing step contributes to a more robust analysis by reducing the influence of outliers on the results.
+
+### Visual Representation
+Below are the boxplots illustrating the detection of outliers for each variable:
+
+```{r}
+
+
+# Check for outliers using boxplots
+numerical_vars <- c("Age", "Income", "AverageSpend", "GroupSize", "WaitTime")
+
+# Create boxplots for each numerical variable
+for (var in numerical_vars) {
+  # Create the boxplot
+  p <- ggplot(satisfaction, aes_string(y = var)) +
+    geom_boxplot(outlier.colour = "red", outlier.size = 2) +
+    labs(title = paste("Boxplot of", var), y = var) +
+    theme_minimal() +
+    scale_y_continuous(breaks = pretty(satisfaction[[var]], n = 10))  # Adjust y-axis labels
+  
+  # Print the plot
+  print(p)  
+}
+
+# Check for outliers using the IQR method
+for (var in numerical_vars) {
+  q1 <- quantile(satisfaction[[var]], 0.25, na.rm = TRUE)
+  q3 <- quantile(satisfaction[[var]], 0.75, na.rm = TRUE)
+  iqr <- q3 - q1
+  lower_bound <- q1 - 1.5 * iqr
+  upper_bound <- q3 + 1.5 * iqr
+  cat(paste(var, ": Lower bound =", lower_bound, "Upper bound =", upper_bound), "\n")
+  
+  # Identify outliers
+  outliers <- satisfaction[[var]] < lower_bound | satisfaction[[var]] > upper_bound
+  
+  # Impute outliers with the median
+  median_value <- median(satisfaction[[var]], na.rm = TRUE)
+  satisfaction[[var]][outliers] <- median_value
+  
+  # Print the variable and the number of outliers replaced
+  cat(paste("Replaced outliers in", var, "with median =", median_value, "\n"))
+}
+```
+
+
+
+# Exploratory Data Analysis (15 points)
+
+
+**Binary Variables against target**
+
+```{r binary-var, fig.align = 'default', fig.show = "hold", out.width = "50%"}
+
+satisfaction$HighSatisfaction <- as.factor(satisfaction$HighSatisfaction)
+
+# Binary variables in the dataset
+binary_vars <- c("OnlineReservation", "DeliveryOrder", "LoyaltyProgramMember")
+
+# Loop through each binary variable to generate the plots
+for (binary_var in binary_vars) {
+  
+  # Barplot with fill based on HighSatisfaction
+  p1 <- ggplot(data = satisfaction) + 
+    geom_bar(aes_string(x = binary_var, fill = "HighSatisfaction")) +
+    scale_fill_manual(values = c("palevioletred1", "darkseagreen1")) +
+    labs(title = paste("Barplot of", binary_var, "vs HighSatisfaction")) +
+    theme_minimal()
+  
+  # Print the plot
+  print(p1)
+  
+  # Stacked Barplot
+  p2 <- ggplot(data = satisfaction) + 
+    geom_bar(aes_string(x = binary_var, fill = "HighSatisfaction"), position = "fill") +
+    scale_fill_manual(values = c("palevioletred1", "darkseagreen1")) +
+    labs(title = paste("Stacked Barplot of", binary_var, "vs HighSatisfaction")) +
+    theme_minimal()
+  
+  # Print the plot
+  print(p2)
+}
+```
+
+## Interpretation Overview:
+
+### Barplots of `OnlineReservation` vs. `HighSatisfaction`:
+
+- The first barplot shows the count of customers who made online reservations split by whether they reported high satisfaction (`HighSatisfaction = 1`) or not (`HighSatisfaction = 0`).
+- The pink segment (`0`) represents customers with low satisfaction, while the green segment (`1`) indicates those with high satisfaction.
+- The second plot is a normalized version (proportionally stacked barplot), showing the proportion of satisfied vs. unsatisfied customers for each category.
+
+#### Key Insights:
+- It appears that a greater proportion of customers who did not make an online reservation (`OnlineReservation = 0`) had lower satisfaction compared to those who did (`OnlineReservation = 1`).
+- The proportions in the normalized stacked barplot show that those who used online reservations might have a slightly higher chance of being satisfied.
+
+### Barplots of `DeliveryOrder` vs. `HighSatisfaction`:
+
+- These plots compare the counts of customers who placed delivery orders (`DeliveryOrder = 1`) against their satisfaction levels.
+- The pink and green colors maintain the same meaning.
+
+#### Key Insights:
+- Customers who did not place a delivery order (`DeliveryOrder = 0`) seem to have a higher number of low satisfaction cases compared to those who did.
+- The normalized plot might reveal a higher proportion of satisfaction for those who opted for delivery services compared to those who did not.
+
+### Barplots of `LoyaltyProgramMember` vs. `HighSatisfaction`:
+
+- These graphs explore how being a part of a loyalty program (`LoyaltyProgramMember`) influences satisfaction.
+- Again, pink represents dissatisfaction (`0`) and green represents satisfaction (`1`).
+
+#### Key Insights:
+- A larger proportion of customers who are part of the loyalty program (`LoyaltyProgramMember = 1`) tend to report higher satisfaction levels.
+- In contrast, those who are not loyalty program members (`LoyaltyProgramMember = 0`) appear to have a higher proportion of dissatisfaction.
+- This indicates a possible positive correlation between being a loyalty program member and customer satisfaction.
+
+### Summary:
+- Being a member of a loyalty program and utilizing online reservations might be associated with higher satisfaction among customers.
+- Delivery orders might also contribute positively to customer satisfaction, but the effect seems lesser than that of loyalty program membership.
+- These insights suggest areas where businesses might focus their efforts, such as promoting loyalty programs and improving the experience of customers using online reservations to boost overall satisfaction.
+
+
+## Nominal Variables Against target
+
+
+```{r}
+# Load necessary libraries
+library(ggplot2)
+library(gridExtra)
+
+# Nominal variables in the dataset, excluding OnlineReservation, DeliveryOrder, and LoyaltyProgramMember
+nominal_vars <- c("ServiceRating", "FoodRating", "AmbianceRating", "Gender", 
+                  "VisitFrequency", "PreferredCuisine", "TimeOfVisit", 
+                  "DiningOccasion", "MealType")
+
+# Loop through each nominal variable to generate the plots and interpretations
+for (nominal_var in nominal_vars) {
+  
+  # Convert the nominal variable to a factor (if needed)
+  satisfaction[[nominal_var]] <- as.factor(satisfaction[[nominal_var]])
+  
+  # Display variable title as a header
+  cat("\n##", nominal_var, " vs HighSatisfaction\n\n")
+  
+  # Print table with margins for each nominal variable
+  print(addmargins(table(satisfaction[[nominal_var]], satisfaction$HighSatisfaction, 
+                         dnn = c(nominal_var, "HighSatisfaction"))))
+  
+  # Create title strings with line breaks
+  count_title <- paste("Count of", nominal_var, "vs HighSatisfaction")
+  proportion_title <- paste("Proportion of", nominal_var, "vs HighSatisfaction")
+  
+  # Barplot with fill based on HighSatisfaction (Count)
+  p1 <- ggplot(data = satisfaction) + 
+    geom_bar(aes_string(x = nominal_var, fill = "HighSatisfaction")) +
+    scale_fill_manual(values = c("palevioletred1", "darkseagreen1")) +
+    labs(title = count_title, y = "Count") +
+    theme_minimal() +
+    theme(plot.title = element_text(hjust = 0.5, size = 12, face = "bold"))
+  
+  # Print the first plot (count)
+  print(p1)
+  
+  # Interpretation for the first graph (Count)
+  cat("\nInterpretation for Count Graph:\n")
+  cat("For", nominal_var, "the barplot shows the distribution of customer satisfaction (0 = Unsatisfied, 1 = Satisfied) based on", nominal_var, 
+      ". Key trends and observations can be noted, such as any obvious differences in satisfaction levels between categories of", nominal_var, ".\n\n")
+  
+  # Stacked Barplot (with proportions)
+  p2 <- ggplot(data = satisfaction) + 
+    geom_bar(aes_string(x = nominal_var, fill = "HighSatisfaction"), position = "fill") +
+    scale_fill_manual(values = c("palevioletred1", "darkseagreen1")) +
+    labs(title = proportion_title, y = "Proportion") +
+    theme_minimal() +
+    theme(plot.title = element_text(hjust = 0.5, size = 12, face = "bold"))
+  
+  # Print the second plot (proportion)
+  print(p2)
+  
+  # Interpretation for the proportion graph with variable-specific insights
+  cat("\nInterpretation for Proportion Graph:\n")
+  if (nominal_var == "ServiceRating") {
+    cat("- Higher service ratings (4 and 5) tend to have more customers with high satisfaction compared to lower ratings.\n")
+    cat("- The proportion plot shows a gradual increase in satisfaction as the ServiceRating increases.\n")
+  } else if (nominal_var == "FoodRating") {
+    cat("- Similar to ServiceRating, customers who rated the food highly (4 and 5) tend to be more satisfied.\n")
+    cat("- A higher proportion of customers who rated the food as '1' or '2' are less satisfied.\n")
+  } else if (nominal_var == "AmbianceRating") {
+    cat("- Higher ambiance ratings are associated with increased customer satisfaction.\n")
+    cat("- The proportion plot indicates that ambiance plays a role in customer satisfaction.\n")
+  } else if (nominal_var == "Gender") {
+    cat("- Satisfaction does not appear to vary significantly between genders.\n")
+    cat("- Both the count and proportion plots show a similar distribution for male and female customers.\n")
+  } else if (nominal_var == "VisitFrequency") {
+    cat("- Customers who visit more frequently tend to have higher satisfaction levels.\n")
+    cat("- Weekly visitors have the highest count of satisfied customers, as shown in the proportion plot.\n")
+  } else if (nominal_var == "PreferredCuisine") {
+    cat("- Preferences for cuisine show some little variation in satisfaction levels.\n")
+    cat("- Customers who prefer Indian or American cuisine appear to have a slightly higher proportion of satisfaction.\n")
+  } else if (nominal_var == "TimeOfVisit") {
+    cat("- Time of visit (Breakfast, Lunch, or Dinner) does not seem to have a strong impact on satisfaction.\n")
+    cat("- The proportion of satisfied customers remains relatively consistent across meal times.\n")
+  } else if (nominal_var == "DiningOccasion") {
+    cat("- Dining occasions like celebrations have a higher proportion of satisfied customers.\n")
+    cat("- Business and casual dining occasions show more mixed satisfaction levels.\n")
+  } else if (nominal_var == "MealType") {
+    cat("- The satisfaction levels for dine-in and takeaway customers are noticeable.\n")
+    cat("- The proportion of satisfied customers is higher for dine-in customers.\n")
+  }
+  
+  cat("\n\n")
+}
+
+
+
+
+
+```
+
+## Correlations between *numerical* variables
+
+```{r}
+# List of numerical variables
+numerical_vars <- c("Age", "Income", "AverageSpend", "GroupSize", "WaitTime")
+
+# Calculate the correlation matrix for the selected numerical variables
+cor_matrix <- cor(satisfaction[, numerical_vars], use = "complete.obs")
+
+# Plot the correlation matrix using ggcorrplot
+ggcorrplot(cor_matrix, type = "lower", lab = TRUE)
+
+```
+
+### Correlation Matrix Interpretation
+
+The correlation matrix below shows the relationships between four variables: **Income**, **AverageSpend**, **GroupSize**, and **WaitTime**. Correlation values range from -1 (perfect negative correlation) to 1 (perfect positive correlation).
+
+1. **Income and AverageSpend**:
+   - The correlation coefficient is **0.01**, indicating almost no linear relationship between income and average spending. This suggests that income does not significantly affect how much customers spend on average.
+
+2. **Income and GroupSize**:
+   - The correlation is **0.06**, which is positive but very weak. This suggests that there is a slight tendency for higher income customers to dine in larger groups, but the relationship is too weak to be considered meaningful.
+
+3. **Income and WaitTime**:
+   - The correlation is **-0.02**, indicating a very weak negative relationship. This means that income has almost no impact on wait times experienced by customers.
+
+4. **Age and Income**:
+   - The correlation is **-0.03**, which is a very weak negative relationship. It suggests that age and income are not significantly related in this context.
+
+5. **Age and AverageSpend**:
+   - The correlation is **0.02**, showing no significant relationship between a customer's age and how much they spend on average.
+
+6. **GroupSize and AverageSpend**:
+   - The correlation is **0.04**, indicating a slight positive relationship. This could imply that larger groups tend to have a slightly higher average spend, though the relationship is weak.
+
+7. **GroupSize and WaitTime**:
+   - The correlation is **-0.03**, showing a very weak negative relationship, suggesting that group size does not significantly affect wait times.
+
+### Overall Summary:
+- All observed relationships between the variables are extremely weak, with correlation values near zero. This suggests that none of the variables have a strong linear relationship with one another.
+- It is important to note that correlation does not imply causation, and the weak relationships here indicate that other factors may be influencing these variables. Further analysis could be conducted to identify more complex relationships or interactions among these variables.
+
+
+
+## Correlations between *numerical* variables
+
+
+
+
+```{r}
+```{r fig.width=12, fig.height=6}
+# Load necessary libraries
+library(ggplot2)
+library(gridExtra)
+
+# Define numerical variables
+numerical_vars <- c("Age", "Income", "AverageSpend", "GroupSize", "WaitTime")
+
+# Loop through each variable to create plots and interpretations
+for (var in numerical_vars) {
+  
+  # Adjusted titles with line breaks
+  boxplot_title <- paste("Boxplot of", var, "\nby HighSatisfaction")
+  density_title <- paste("Density Plot of", var, "\nby HighSatisfaction")
+  
+  # Boxplot for the variable by HighSatisfaction
+  boxplot <- ggplot(satisfaction, aes_string(x = "HighSatisfaction", y = var)) +
+    geom_boxplot(aes(fill = HighSatisfaction), outlier.colour = "red", outlier.size = 2) +
+    labs(title = boxplot_title, y = var, x = "HighSatisfaction") +
+    theme_minimal() +
+    scale_fill_manual(values = c("palevioletred1", "darkseagreen1")) +
+    theme(plot.title = element_text(hjust = 0.5, size = 14, face = "bold"))
+  
+  # Density plot for the variable by HighSatisfaction
+  density_plot <- ggplot(satisfaction, aes_string(x = var, fill = "HighSatisfaction")) +
+    geom_density(alpha = 0.3) +
+    scale_fill_manual(values = c("palevioletred1", "darkseagreen1")) +
+    labs(title = density_title, x = var, y = "Density") +
+    theme_minimal() +
+    theme(plot.title = element_text(hjust = 0.5, size = 14, face = "bold"))
+
+  # Arrange the boxplot and density plot side by side, adjusting the size
+  grid.arrange(boxplot, density_plot, ncol = 2, widths = c(1.2, 1.2))
+  
+  # Interpretation for the variable
+  if (var == "Age") {
+    cat("\n**Age**\n\n",
+        "- The Boxplot shows a similar distribution of ages among satisfied and unsatisfied customers. ",
+        "The median age is close for both groups. ",
+        "The density plot suggests a slightly higher density of younger satisfied customers (below 40), while unsatisfied customers are more evenly spread across ages.\n\n")
+  } else if (var == "Income") {
+    cat("\n**Income**\n\n",
+        "- The Boxplot indicates that both satisfied and unsatisfied groups have a similar income distribution. ",
+        "However, the Density Plot shows a higher density of satisfied customers around higher income brackets, suggesting that income might be a factor contributing to satisfaction.\n\n")
+  } else if (var == "AverageSpend") {
+    cat("\n**Average Spend**\n\n",
+        "- From the Boxplot, the median spending appears similar between both groups, ",
+        "but the density plot suggests that satisfied customers are more concentrated around higher spending ranges, ",
+        "whereas unsatisfied customers are more evenly distributed.\n\n")
+  } else if (var == "GroupSize") {
+    cat("\n**Group Size**\n\n",
+        "- The Boxplot shows that the median group size is similar for both satisfaction levels. ",
+        "However, the density plot reveals a slightly higher density of satisfied customers for smaller group sizes, ",
+        "whereas unsatisfied customers tend to have more variation in group sizes.\n\n")
+  } else if (var == "WaitTime") {
+    cat("\n**Wait Time**\n\n",
+        "- The Boxplot reveals that satisfied customers tend to have shorter wait times, as indicated by a lower median. ",
+        "The Density Plot supports this, showing a higher density of satisfied customers with wait times around 20 minutes or less, ",
+        "while longer wait times are associated with unsatisfied customers.\n\n")
+  }
+}
+
+
+
+```
+
+# Data Preparation for Modeling (10 points)
+
+## Set Dummy variables for categorical variables
+
+To prepare the data for modeling, it is necessary to convert categorical variables into dummy variables. Dummy variables are binary (0 or 1) and allow categorical data to be included in regression models. Each category of a variable is converted into a separate dummy variable, representing whether a given observation falls into that category.
+
+
+```{r dummy-var}
+satisfaction$dummy_male  = ifelse(satisfaction$Gender == "Male", 1, 0)
+
+satisfaction$dummy_daily  = ifelse(satisfaction$VisitFrequency == "Daily", 1, 0)
+satisfaction$dummy_weekly = ifelse(satisfaction$VisitFrequency == "Weekly", 1, 0)
+satisfaction$dummy_monthly = ifelse(satisfaction$VisitFrequency == "Monthly", 1, 0)
+satisfaction$dummy_rarely = ifelse(satisfaction$VisitFrequency == "Rarely", 1, 0)
+
+satisfaction$dummy_italian  = ifelse(satisfaction$PreferredCuisine == "Italian", 1, 0)
+satisfaction$dummy_chinese  = ifelse(satisfaction$PreferredCuisine == "Chinese", 1, 0)
+satisfaction$dummy_indian   = ifelse(satisfaction$PreferredCuisine == "Indian", 1, 0)
+satisfaction$dummy_mexican  = ifelse(satisfaction$PreferredCuisine == "Mexican", 1, 0)
+satisfaction$dummy_american = ifelse(satisfaction$PreferredCuisine == "American", 1, 0)
+
+satisfaction$dummy_breakfast = ifelse(satisfaction$TimeOfVisit == "Breakfast", 1, 0)
+satisfaction$dummy_lunch     = ifelse(satisfaction$TimeOfVisit == "Lunch", 1, 0)
+satisfaction$dummy_dinner    = ifelse(satisfaction$TimeOfVisit == "Dinner", 1, 0)
+
+satisfaction$dummy_casual      = ifelse(satisfaction$DiningOccasion == "Casual", 1, 0)
+satisfaction$dummy_business    = ifelse(satisfaction$DiningOccasion == "Business", 1, 0)
+satisfaction$dummy_celebration = ifelse(satisfaction$DiningOccasion == "Celebration", 1, 0)
+
+satisfaction$dummy_dinein   = ifelse(satisfaction$MealType == "Dine-in", 1, 0)
+satisfaction$dummy_takeaway = ifelse(satisfaction$MealType == "Takeaway", 1, 0)
+
+```
+
+By creating these dummy variables, we ensure that the categorical information is appropriately represented in the modeling process, allowing the model to capture the influence of different categories on the target variable, `HighSatisfaction`.
+
+## Partition Data
+
+To train and evaluate the predictive model, the data is partitioned into training and testing sets. This partitioning allows us to build the model using a portion of the data (training set) and validate its performance on a separate portion (testing set).
+
+```{r}
+set.seed(5)
+
+data_sets = partition(data = satisfaction, prob = c(0.80, 0.20))
+
+train_set = data_sets$part1
+test_set  = data_sets$part2
+
+actual_test  = test_set$HighSatisfaction
+
+# Ensure actual_test is a factor
+actual_test <- as.factor(actual_test)
+
+# Turn target variable into a factor
+
+train_set$HighSatisfaction <- as.factor(train_set$HighSatisfaction)
+test_set$HighSatisfaction <- as.factor(test_set$HighSatisfaction)
+
+```
+
+## Validate partition
+
+After partitioning the dataset into training and testing sets, it is crucial to validate the partition to ensure that both sets have a similar distribution of the target variable, `HighSatisfaction`. This helps to confirm that the training and testing sets are representative of the overall data and that the model evaluation will be fair and unbiased.
+
+```{r}
+chisq.test(x = table(train_set$HighSatisfaction), y = table(test_set$HighSatisfaction))
+```
+
+The test returned a **p-value of 1**, which suggests that there is no statistically significant difference between the proportions of `HighSatisfaction` in the training and testing sets.
+
+- A **p-value greater than 0.05** indicates that any differences between the training and testing sets' distributions of `HighSatisfaction` are likely due to chance, rather than a systematic bias in the partitioning process.
+- In this case, with a **p-value of 1**, we can be confident that the distribution of `HighSatisfaction` in the training set is similar to that in the testing set.
+
+
+# Modeling (30 points)
+
+We will apply various **Machine Learning algorithms** on the training dataset using the formula defined earlier. The selected algorithms include:
+
+1. **Naive Bayes Classification**: 
+   - A probabilistic classifier that applies Bayes' theorem with the assumption of independence between predictors.
+   - It is effective for categorical predictors and can handle high-dimensional inputs, making it a suitable choice for modeling customer satisfaction (Ibm, 2024a).
+
+2. **k-Nearest Neighbors (k-NN)**: 
+   - A non-parametric method that classifies based on the majority class among the `k` nearest neighbors in the feature space.
+   - It is simple yet useful, especially in scenarios where the decision boundary is complex, and it adapts well to non-linear relationships between features (Ibm, 2024d).
+
+3. **Logistic Regression**: 
+   - A linear model that predicts the probability of the target class (`HighSatisfaction`) using the logistic function.
+   - This model is particularly suitable for binary outcomes and provides interpretable coefficients, which can help understand the influence of each predictor on customer satisfaction(Seufert, 2014) (Ibm, 2024c).
+
+4. **Random Forest**: 
+   - An ensemble method that builds multiple decision trees and combines their results for improved predictive performance.
+   - It is robust against overfitting and can handle both categorical and numerical data effectively, making it a versatile choice for our analysis (Ibm, 2024b).
+
+By applying these models, we aim to evaluate their effectiveness in predicting `HighSatisfaction` and determine which model offers the best accuracy and performance for our data.
+
+**Features**
+
+```{r formula-reg}
+
+formula = HighSatisfaction ~ Age + Gender + Income + VisitFrequency + AverageSpend + PreferredCuisine + TimeOfVisit + GroupSize + DiningOccasion + MealType + OnlineReservation + DeliveryOrder + LoyaltyProgramMember + WaitTime + ServiceRating + FoodRating + AmbianceRating
+
+```
+
+## Applying Naives Bayes Classifier
+
+The **Naive Bayes** classifier was applied to the training dataset using the specified formula. This section summarizes the key results and distributions for each predictor used in the model.
+
+### Naive Bayes results
+
+```{r}
+naive_bayes <- naive_bayes(formula, data = train_set)
+
+naive_bayes
+```
+
+```{r}
+summary(naive_bayes)
+```
+
+### Interpretation of Naive Bayes Classifier Results
+
+The Naive Bayes classifier was applied to the training dataset, and the results provide several insights into the characteristics of customers who are highly satisfied (`HighSatisfaction = 1`) versus those who are not (`HighSatisfaction = 0`). Below is a detailed interpretation of key findings:
+
+- **Prior Probabilities**:
+  - The prior probability for `HighSatisfaction = 0` is **0.8714**, while for `HighSatisfaction = 1`, it is **0.1286**. This indicates that approximately **87.1%** of customers in the training set are not highly satisfied, while only **12.9%** are highly satisfied.
+  - The imbalance in prior probabilities reflects the skewed distribution of satisfaction levels in the dataset, which is an important consideration when evaluating the model's performance.
+
+- **Age**:
+  - The mean age of customers in the `HighSatisfaction = 0` group is **43.82** years, while the mean age for `HighSatisfaction = 1` is **44.47** years. Both groups have a similar standard deviation, indicating that age does not vary significantly between satisfied and unsatisfied customers.
+  - This suggests that age is not a strong differentiator between the satisfaction levels of customers.
+
+- **Gender**:
+  - The distribution of gender is almost equal for both classes, with a slight variation. For the `HighSatisfaction = 0` group, **50.2%** are female and **49.8%** are male. For the `HighSatisfaction = 1` group, the proportions are **50.0%** each.
+  - This near-equal distribution suggests that gender does not play a significant role in determining high satisfaction among customers.
+
+- **Income**:
+  - Customers in the `HighSatisfaction = 1` group have a higher average income (**96,681.76** USD) compared to those in the `HighSatisfaction = 0` group (**83,543.75** USD).
+  - This difference indicates that higher income customers are more likely to be highly satisfied, suggesting that income might have a positive correlation with satisfaction levels.
+
+- **VisitFrequency**:
+  - The model indicates that **60.5%** of customers who are highly satisfied visit the restaurant **weekly**, compared to only **37.9%** in the `HighSatisfaction = 0` group.
+  - Customers who visit less frequently (e.g., **rarely** or **monthly**) tend to have lower satisfaction levels. This suggests that frequent visits are associated with higher satisfaction, possibly due to stronger loyalty or a better understanding of the restaurant’s offerings.
+
+- **AverageSpend**:
+  - The average spending per visit is slightly higher for highly satisfied customers (**111.30** USD) compared to those who are not (**105.18** USD).
+  - This implies that customers who spend more per visit tend to be more satisfied, which could be due to a preference for premium options or a greater appreciation of the restaurant’s offerings.
+
+### Conclusion
+
+The Naive Bayes model helps in understanding the relationship between various predictors and customer satisfaction levels. Factors like **Income**, **VisitFrequency**, and **AverageSpend** show some influence over whether customers perceive themselves as highly satisfied. However, variables like **Age** and **Gender** seem to have a minimal impact. 
+
+These insights will be useful in further refining the restaurant's strategy to improve customer satisfaction, such as targeting loyalty programs at higher-income customers and encouraging more frequent visits.
+
+
+## Applying KNN
+
+```{r}
+formula_knn = HighSatisfaction ~ Age + Income + AverageSpend + GroupSize + OnlineReservation + DeliveryOrder + LoyaltyProgramMember + WaitTime + 
+  ServiceRating + FoodRating + AmbianceRating + 
+  dummy_male + 
+  dummy_daily + dummy_weekly + dummy_monthly + dummy_rarely + 
+  dummy_italian + dummy_chinese + dummy_indian + dummy_mexican + dummy_american + 
+  dummy_breakfast + dummy_lunch + dummy_dinner + 
+  dummy_casual + dummy_business + dummy_celebration + 
+  dummy_dinein + dummy_takeaway
+
+```
+
+```{r k-error-rate}
+kNN.plot(formula_knn, train = train_set, test = test_set, transform = "minmax", 
+          k.max = 30, set.seed = 14)
+
+prob_knn <- kNN(formula_knn, train = train_set, test = test_set, transform = "minmax", 
+                k = 7, type = "prob")
+prob_knn_positive <- prob_knn[, "1"]
+
+```
+
+### Interpretation of Error Rate for Different k Values
+
+The graph above illustrates the **error rate** of the k-Nearest Neighbors (k-NN) model for varying values of **k**. The error rate represents the proportion of incorrect predictions made by the model as `k` changes. Here are the key observations and interpretations:
+
+- **Initial Decrease in Error Rate**:
+  - At smaller values of `k` (e.g., `k = 1`, `k = 2`), the error rate is relatively high, indicating that the model is more likely to overfit to the training data. With `k = 1`, the model directly assigns the class of the closest training example, which can lead to high variance and sensitivity to noise.
+  - As `k` increases from `1` to around `5`, there is a **significant decrease in the error rate**, suggesting that the model benefits from considering a larger number of neighbors. This helps to smooth out the decision boundary and make more generalized predictions.
+
+- **Optimal Range of k**:
+  - The **lowest error rate** is observed around `k = 7` to `k = 10`. This range appears to be the **optimal choice for `k`**, as it minimizes the error rate while still maintaining a balance between bias and variance.
+  - Selecting a value of `k` within this range would likely result in the best predictive performance, as it reduces the chances of overfitting while still capturing important patterns in the data.
+
+- **Increasing Error Rate Beyond Optimal k**:
+  - As `k` continues to increase beyond `10`, the error rate starts to show slight fluctuations and increases at certain points (e.g., `k = 18` and `k = 21`).
+  - This increase in error rate at higher values of `k` indicates that the model becomes too generalized, as it considers a larger set of neighbors when making predictions. This can smooth out the decision boundary too much, potentially missing finer distinctions between classes.
+
+- **Stabilization of Error Rate**:
+  - Beyond `k = 20`, the error rate appears to stabilize, suggesting that changes in `k` have less impact on the model's performance at these larger values.
+  - While the error rate remains relatively consistent, choosing a very high `k` may not offer additional predictive benefits and could result in a model that is too simplistic.
+
+### Conclusion
+
+The graph helps identify the **optimal `k` value** for the k-NN model, which is around `k = 7` to `k = 10`, where the error rate is at its lowest. This range balances the trade-off between bias and variance, offering better generalization to new data. Choosing a `k` outside this range, either too low or too high, could result in higher error rates due to overfitting or underfitting, respectively. Therefore, for the best model performance, `k` values in the optimal range should be preferred.
+
+
+
+
+
+
+## Logistic regression
+
+```{r}
+logreg_1 = glm(formula, data = satisfaction, family = binomial)
+summary(logreg_1)
+
+# Probabilities with logistic on test data
+prob_logreg <- predict(logreg_1, newdata = test_set, type = "response")
+
+```
+
+### Interpretation of Logistic Regression Results
+
+The logistic regression model aims to predict the probability of a customer being highly satisfied (`HighSatisfaction = 1`) based on various predictors. Here are the key findings from the model's output:
+
+- **Intercept**: 
+  - The intercept estimate is **-4.882**, which indicates the log-odds of a customer being highly satisfied when all predictor variables are zero. While this value itself may not have a practical interpretation due to the nature of the predictors, it sets the baseline for understanding the impact of other variables.
+
+- **Significant Predictors**:
+  - The variables that have a **significant p-value** (p < 0.05) are considered to have a meaningful impact on predicting `HighSatisfaction`. Below are the significant predictors and their interpretations:
+
+    - **Income** (`p < 0.001`): The positive coefficient (**1.047e-05**) suggests that higher income slightly increases the likelihood of a customer being highly satisfied. Although the effect size is small, it indicates that wealthier customers are more likely to report higher satisfaction.
+
+    - **VisitFrequency (Monthly, Rarely)**:
+      - **Monthly** (`p < 0.01`): A negative coefficient (**-1.131**) indicates that customers who visit monthly are less likely to be highly satisfied compared to those who visit daily.
+      - **Rarely** (`p < 0.001`): Similarly, a negative coefficient (**-1.387**) suggests that customers who visit rarely have even lower odds of being highly satisfied.
+
+    - **AverageSpend** (`p < 0.01`): The positive coefficient (**0.0061**) implies that customers who spend more per visit are more likely to be highly satisfied.
+
+    - **GroupSize** (`p < 0.001`): The negative coefficient (**-0.2253**) indicates that larger groups are less likely to result in high satisfaction, possibly due to challenges in accommodating larger parties.
+
+    - **DiningOccasion (Celebration)** (`p < 0.001`): A positive coefficient (**1.341**) suggests that customers dining for celebrations are more likely to be highly satisfied compared to other dining occasions.
+
+    - **MealType (Takeaway)** (`p < 0.001`): The negative coefficient (**-1.212**) indicates that takeaway orders are associated with lower satisfaction compared to dine-in experiences.
+
+    - **OnlineReservation** (`p < 0.001`): A positive coefficient (**1.653**) suggests that making an online reservation significantly increases the likelihood of a customer being highly satisfied.
+
+    - **DeliveryOrder** (`p < 0.001`): The positive coefficient (**1.353**) indicates that customers who place delivery orders have higher odds of being highly satisfied.
+
+    - **LoyaltyProgramMember** (`p < 0.001`): The positive coefficient (**1.238**) suggests that being a loyalty program member is strongly associated with increased satisfaction.
+
+    - **WaitTime** (`p < 0.001`): The negative coefficient (**-0.03726**) indicates that longer wait times decrease the likelihood of high satisfaction, as expected.
+
+    - **ServiceRating (4, 5)**:
+      - **Rating 4** (`p < 0.01`) and **Rating 5** (`p < 0.001`) both have positive coefficients, indicating that higher service ratings significantly increase the likelihood of a customer being highly satisfied compared to a baseline lower rating.
+
+    - **FoodRating (4, 5)**:
+      - **Rating 4** (`p < 0.001`) and **Rating 5** (`p < 0.001`) both show positive coefficients, suggesting that higher ratings of food quality strongly contribute to high satisfaction.
+
+    - **AmbianceRating (4, 5)**:
+      - **Rating 4** (`p < 0.001`) and **Rating 5** (`p < 0.01`) have positive coefficients, indicating that a better ambiance experience is associated with higher customer satisfaction.
+
+- **Non-Significant Predictors**:
+  - Variables like **Gender**, **PreferredCuisine**, **TimeOfVisit**, and lower levels of **ServiceRating** and **FoodRating** did not show a significant impact on predicting `HighSatisfaction` (p > 0.05). This suggests that these factors do not strongly influence satisfaction levels in this model.
+
+- **Model Fit**:
+  - The **Null Deviance** is **1181.76**, which represents the fit of a model with no predictors. The **Residual Deviance** is **740.72**, indicating a better fit with the included predictors.
+  - The **AIC (Akaike Information Criterion)** is **808.72**. Lower AIC values indicate a better-fitting model, taking into account the number of predictors used.
+
+### Key Takeaways
+
+- The logistic regression model highlights that factors such as **Income**, **Visit Frequency**, **Average Spend**, **Group Size**, **Dining Occasion**, **Service and Food Ratings**, and **Membership in Loyalty Programs** are important for predicting customer satisfaction.
+- Actions such as encouraging **online reservations**, maintaining **high service and food quality**, and reducing **wait times** could significantly enhance customer satisfaction.
+- Non-significant variables, such as **Gender** and **Preferred Cuisine**, suggest that the restaurant's focus should remain on operational factors that directly impact the customer experience.
+
+
+
+
+## Apply random forest
+
+```{r random-forest}
+
+library(randomForest)
+
+random_forest_model <- randomForest(formula, data = satisfaction, ntree = 500, mtry = 3, importance = TRUE)
+
+importance(random_forest_model)
+varImpPlot(random_forest_model)
+
+# Predict probabilities on test data
+prob_rf <- predict(random_forest_model, newdata = test_set, type = "prob")
+prob_rf_positive <- prob_rf[, "1"]
+
+```
+
+### Interpretation of Random Forest Results
+
+The Random Forest model evaluates the importance of different predictors in determining the likelihood of high customer satisfaction (`HighSatisfaction`). Below is an interpretation of the importance measures and their implications for the model:
+
+- **MeanDecreaseAccuracy**: This metric indicates how much the accuracy of the Random Forest model decreases when each variable is excluded. Higher values suggest that the variable is more important in predicting `HighSatisfaction`.
+    - **OnlineReservation** (12.85) and **VisitFrequency** (11.70) are among the top contributors to model accuracy, suggesting that these features play a significant role in determining customer satisfaction.
+    - **LoyaltyProgramMember** (11.93), **FoodRating** (12.23), and **WaitTime** (6.12) also contribute considerably, indicating that these variables are crucial for making accurate predictions.
+    - Features like **Gender** (1.02) and **PreferredCuisine** (-0.22) have negative or near-zero contributions, suggesting that excluding these variables would not significantly harm the model’s accuracy.
+
+- **MeanDecreaseGini**: This measure shows the reduction in impurity (Gini index) that each variable provides across all trees in the Random Forest. Higher values indicate that a variable is more effective in improving the purity of decision trees.
+    - **WaitTime** (40.13) and **Income** (32.87) are the most critical predictors based on Gini reduction, highlighting that variations in these factors strongly influence the splits in the decision trees.
+    - **AverageSpend** (33.43) also plays a significant role in determining the structure of the decision trees.
+    - Variables like **Gender** (5.47) and **TimeOfVisit** (10.30) have lower Gini values, indicating that they are less influential in improving the model's decision-making process.
+
+### Key Insights:
+- **OnlineReservation**: This feature consistently ranks as highly important. Customers who make reservations online are more likely to experience a smooth dining process, which could translate into higher satisfaction.
+- **VisitFrequency**: Regular visitors (e.g., daily or weekly) tend to have more consistent experiences with the restaurant, influencing their satisfaction levels.
+- **WaitTime**: Longer wait times negatively impact satisfaction, as indicated by its high importance. Managing wait times effectively could lead to improved satisfaction rates.
+- **Loyalty Program Membership**: Membership in loyalty programs is a strong predictor, highlighting the effectiveness of such programs in fostering positive customer experiences.
+- **Income and Average Spend**: Higher-income customers and those who spend more tend to be more satisfied, possibly due to higher expectations being met or a preference for quality experiences.
+
+
+
+
+# Model Evaluation (10 points)
+
+
+
+```{r evaluation-model}
+# Load required libraries
+library(ggplot2)
+library(pROC)
+
+# Prepare actual labels
+actual_numeric <- as.numeric(as.character(actual_test))
+
+# Define the confusion matrix function
+conf.mat <- function(predicted_probs, actual, cutoff = 0.5, positive_label = "1") {
+  # Convert predicted probabilities to class labels based on the cutoff
+  predicted <- ifelse(predicted_probs >= cutoff, positive_label, "0")
+  
+  # Ensure predicted and actual are factors with the same levels
+  predicted <- factor(predicted, levels = c("0", positive_label))
+  actual <- factor(actual, levels = c("0", positive_label))
+  
+  # Generate the confusion matrix
+  table(Predicted = predicted, Actual = actual)
+}
+
+# Define the confusion matrix plot function
+conf.mat.plot <- function(predicted_probs, actual, cutoff = 0.5, positive_label = "1") {
+  # Generate the confusion matrix
+  cm <- conf.mat(predicted_probs, actual, cutoff, positive_label)
+  
+  # Convert the confusion matrix to a data frame for plotting
+  cm_df <- as.data.frame(cm)
+  
+  # Plot the confusion matrix using ggplot2
+  ggplot(cm_df, aes(x = Predicted, y = Actual, fill = Freq)) +
+    geom_tile() +
+    geom_text(aes(label = Freq), color = "palevioletred1", size = 6) +
+    scale_fill_gradient(low = "white", high = "darkseagreen1") +
+    labs(title = "Confusion Matrix") +
+    theme_minimal()
+}
+```
+
+## Evaluation: Naives-Bayes model
+
+```{r conf-naives}
+# Predict probabilities on test data
+prob_naive_bayes <- predict(naive_bayes, newdata = test_set, type = "prob")
+prob_naive_bayes_positive <- prob_naive_bayes[, "1"]
+
+# Confusion matrix
+confusion_matrix_nb <- conf.mat(prob_naive_bayes_positive, actual_test, cutoff = 0.5, positive_label = "1")
+print(confusion_matrix_nb)
+
+# Plot confusion matrix
+conf.mat.plot(prob_naive_bayes_positive, actual_test, cutoff = 0.5, positive_label = "1")
+
+# Compute MSE
+mse_nb <- mean((prob_naive_bayes_positive - actual_numeric)^2)
+
+# ROC curve and AUC
+roc_naive_bayes <- roc(actual_test, prob_naive_bayes_positive)
+```
+
+### Interpretation:
+
+- **True Positives (TP)**: 16  
+  The model correctly predicted that 16 customers were highly satisfied (`HighSatisfaction = 1`).
+
+- **True Negatives (TN)**: 268  
+  The model correctly identified 268 instances where the customer was not highly satisfied (`HighSatisfaction = 0`).
+
+- **False Positives (FP)**: 1  
+  The model incorrectly predicted high satisfaction (`HighSatisfaction = 1`) for 1 customer who was actually not highly satisfied.
+
+- **False Negatives (FN)**: 33  
+  The model missed 34 instances where the customer was highly satisfied (`HighSatisfaction = 1`), predicting them as not satisfied (`HighSatisfaction = 0`).
+
+### Model Metrics:
+
+- **Accuracy**:
+  \[
+  \text{Accuracy} = \frac{\text{TP + TN}}{\text{TP + TN + FP + FN}} = \frac{16 + 268}{16 + 268 + 1 + 33} = \frac{284}{318} \approx 0.890
+  \]
+  The Naive Bayes model correctly predicted the satisfaction level for approximately 89.0% of the test cases.
+
+- **Precision** (for `HighSatisfaction = 1`):
+  \[
+  \text{Precision} = \frac{\text{TP}}{\text{TP + FP}} = \frac{16}{16 + 1} = \frac{16}{17} \approx 0.941
+  \]
+  Precision indicates that when the model predicts a customer is highly satisfied, it is correct about 94.1% of the time.
+
+- **Recall** (Sensitivity or True Positive Rate):
+  \[
+  \text{Recall} = \frac{\text{TP}}{\text{TP + FN}} = \frac{16}{16 + 33} = \frac{16}{49} \approx 0.326
+  \]
+  The model correctly identified around 32.6% of the truly highly satisfied customers.
+
+- **Specificity**:
+  \[
+  \text{Specificity} = \frac{\text{TN}}{\text{TN + FP}} = \frac{268}{268 + 1} = \frac{268}{269} \approx 0.996
+  \]
+  The model is very effective in identifying customers who are not highly satisfied, with a specificity of approximately 99.6%.
+
+### Summary:
+
+- **Strengths**:
+  - High precision (94.1%) suggests the model is reliable when it predicts that a customer is highly satisfied.
+  - High specificity (99.6%) means that it rarely misclassifies a non-satisfied customer as highly satisfied.
+
+- **Weaknesses**:
+  - The recall (32.6%) shows that the model misses many cases of actual high satisfaction, potentially underestimating the number of highly satisfied customers.
+
+- **Overall Performance**:
+  - The Naive Bayes model performs well in identifying non-satisfied customers and is precise in its predictions for high satisfaction. However, it has room for improvement in capturing all cases of high satisfaction. Adjustments such as feature tuning or balancing the training data might help improve recall.
+
+## Evaluation: KNN
+
+```{r conf-knn}
+# Confusion matrix
+confusion_matrix_knn <- conf.mat(prob_knn_positive, actual_test, cutoff = 0.5, positive_label = "1")
+print(confusion_matrix_knn)
+
+# Plot confusion matrix
+conf.mat.plot(prob_knn_positive, actual_test, cutoff = 0.5, positive_label = "1")
+
+# Compute MSE
+mse_knn <- mean((prob_knn_positive - actual_numeric)^2)
+
+# ROC curve and AUC
+roc_knn <- roc(actual_test, prob_knn_positive)
+```
+
+### Interpretation:
+
+- **True Positives (TP)**: 8  
+  The model correctly predicted that 8 customers were highly satisfied (`HighSatisfaction = 1`).
+
+- **True Negatives (TN)**: 265  
+  The model correctly identified 265 instances where the customer was not highly satisfied (`HighSatisfaction = 0`).
+
+- **False Positives (FP)**: 4  
+  The model incorrectly predicted high satisfaction (`HighSatisfaction = 1`) for 4 customers who were actually not highly satisfied.
+
+- **False Negatives (FN)**: 41  
+  The model missed 41 instances where the customer was highly satisfied (`HighSatisfaction = 1`), predicting them as not satisfied (`HighSatisfaction = 0`).
+
+### Model Metrics:
+
+- **Accuracy**:
+  \[
+  \text{Accuracy} = \frac{\text{TP + TN}}{\text{TP + TN + FP + FN}} = \frac{8 + 265}{8 + 265 + 4 + 41} = \frac{273}{318} \approx 0.858
+  \]
+  The KNN model correctly predicted the satisfaction level for approximately 85.8% of the test cases.
+
+- **Precision** (for `HighSatisfaction = 1`):
+  \[
+  \text{Precision} = \frac{\text{TP}}{\text{TP + FP}} = \frac{8}{8 + 4} = \frac{8}{12} \approx 0.667
+  \]
+  Precision indicates that when the model predicts a customer is highly satisfied, it is correct about 66.7% of the time.
+
+- **Recall** (Sensitivity or True Positive Rate):
+  \[
+  \text{Recall} = \frac{\text{TP}}{\text{TP + FN}} = \frac{8}{8 + 41} = \frac{8}{49} \approx 0.163
+  \]
+  The model correctly identified around 16.3% of the truly highly satisfied customers.
+
+- **Specificity**:
+  \[
+  \text{Specificity} = \frac{\text{TN}}{\text{TN + FP}} = \frac{265}{265 + 4} = \frac{265}{269} \approx 0.985
+  \]
+  The model is effective in identifying customers who are not highly satisfied, with a specificity of approximately 98.5%.
+
+### Summary:
+
+- **Strengths**:
+  - High specificity (98.5%) means that the model is effective at identifying non-satisfied customers.
+  - The accuracy (85.8%) suggests the model is generally performing well in overall prediction.
+
+- **Weaknesses**:
+  - Precision is moderate (66.7%), indicating some false positives in the prediction of high satisfaction.
+  - Low recall (16.3%) shows that the model fails to capture many instances of high satisfaction, underestimating the true number of satisfied customers.
+
+- **Overall Performance**:
+  - The KNN model is good at identifying customers who are not highly satisfied, but it struggles with correctly identifying all highly satisfied customers. Improvements could include optimizing the value of `k` or adjusting the feature selection to improve recall while maintaining precision.
+  
+## Evaluation: Logistic Regression
+```{r conf-logreg}
+
+# Confusion matrix
+confusion_matrix_logreg <- conf.mat(prob_logreg, actual_test, cutoff = 0.5, positive_label = "1")
+print(confusion_matrix_logreg)
+
+# Plot confusion matrix
+conf.mat.plot(prob_logreg, actual_test, cutoff = 0.5, positive_label = "1")
+
+# Compute MSE
+mse_logreg <- mean((prob_logreg - actual_numeric)^2)
+
+# ROC curve and AUC
+roc_logreg <- roc(actual_test, prob_logreg)
+```
+
+### Interpretation:
+
+- **True Positives (TP)**: 22  
+  The model correctly predicted that 22 customers were highly satisfied (`HighSatisfaction = 1`).
+
+- **True Negatives (TN)**: 262  
+  The model correctly identified 262 instances where the customer was not highly satisfied (`HighSatisfaction = 0`).
+
+- **False Positives (FP)**: 7  
+  The model incorrectly predicted high satisfaction (`HighSatisfaction = 1`) for 7 customers who were actually not highly satisfied.
+
+- **False Negatives (FN)**: 27  
+  The model missed 27 instances where the customer was highly satisfied (`HighSatisfaction = 1`), predicting them as not satisfied (`HighSatisfaction = 0`).
+
+### Model Metrics:
+
+- **Accuracy**:
+  \[
+  \text{Accuracy} = \frac{\text{TP + TN}}{\text{TP + TN + FP + FN}} = \frac{22 + 262}{22 + 262 + 7 + 27} = \frac{284}{318} \approx 0.893
+  \]
+  The Logistic Regression model correctly predicted the satisfaction level for approximately 89.3% of the test cases.
+
+- **Precision** (for `HighSatisfaction = 1`):
+  \[
+  \text{Precision} = \frac{\text{TP}}{\text{TP + FP}} = \frac{22}{22 + 7} = \frac{22}{29} \approx 0.759
+  \]
+  Precision indicates that when the model predicts a customer is highly satisfied, it is correct about 75.9% of the time.
+
+- **Recall** (Sensitivity or True Positive Rate):
+  \[
+  \text{Recall} = \frac{\text{TP}}{\text{TP + FN}} = \frac{22}{22 + 27} = \frac{22}{49} \approx 0.449
+  \]
+  The model correctly identified around 44.9% of the truly highly satisfied customers.
+
+- **Specificity**:
+  \[
+  \text{Specificity} = \frac{\text{TN}}{\text{TN + FP}} = \frac{262}{262 + 7} = \frac{262}{269} \approx 0.974
+  \]
+  The model is effective in identifying customers who are not highly satisfied, with a specificity of approximately 97.4%.
+
+### Summary:
+
+- **Strengths**:
+  - High specificity (97.4%) indicates that the model is effective at identifying non-satisfied customers.
+  - The accuracy (89.3%) suggests a strong overall performance in correctly predicting satisfaction levels.
+
+- **Weaknesses**:
+  - The precision (75.9%) is moderately high, but the recall (44.9%) is relatively low, indicating that the model misses a significant portion of truly satisfied customers.
+  - A low recall suggests the model is more conservative in predicting high satisfaction, leading to many false negatives.
+
+- **Overall Performance**:
+  - The Logistic Regression model demonstrates good accuracy and precision but struggles with recall. This means that while it is generally correct when it predicts high satisfaction, it often fails to identify all instances of highly satisfied customers. Future improvements could focus on balancing precision and recall, potentially by adjusting the decision threshold.
+
+
+## Evaluation: Random Forest
+
+```{r conf-rf}
+# Confusion matrix
+confusion_matrix_rf <- conf.mat(prob_rf_positive, actual_test, cutoff = 0.5, positive_label = "1")
+print(confusion_matrix_rf)
+
+# Plot confusion matrix
+conf.mat.plot(prob_rf_positive, actual_test, cutoff = 0.5, positive_label = "1")
+
+# MSE
+mse_rf <- mean((prob_rf_positive - actual_numeric)^2)
+
+# ROC curve and AUC
+roc_rf <- roc(actual_test, prob_rf_positive)
+```
+
+### Interpretation:
+
+- **True Positives (TP)**: 49  
+  The model correctly predicted that 49 customers were highly satisfied (`HighSatisfaction = 1`).
+
+- **True Negatives (TN)**: 269  
+  The model correctly identified 269 instances where the customer was not highly satisfied (`HighSatisfaction = 0`).
+
+- **False Positives (FP)**: 0  
+  The model did not incorrectly predict any non-satisfied customers as highly satisfied.
+
+- **False Negatives (FN)**: 0  
+  The model did not miss any instances of truly satisfied customers, predicting them as not satisfied.
+
+### Model Metrics:
+
+- **Accuracy**:
+  \[
+  \text{Accuracy} = \frac{\text{TP + TN}}{\text{TP + TN + FP + FN}} = \frac{49 + 269}{49 + 269 + 0 + 0} = \frac{318}{318} = 1.000
+  \]
+  The Random Forest model achieved an accuracy of 100%, correctly predicting all instances in the test set.
+
+- **Precision** (for `HighSatisfaction = 1`):
+  \[
+  \text{Precision} = \frac{\text{TP}}{\text{TP + FP}} = \frac{49}{49 + 0} = 1.000
+  \]
+  Precision indicates that when the model predicts a customer is highly satisfied, it is correct 100% of the time.
+
+- **Recall** (Sensitivity or True Positive Rate):
+  \[
+  \text{Recall} = \frac{\text{TP}}{\text{TP + FN}} = \frac{49}{49 + 0} = 1.000
+  \]
+  The model correctly identified all instances of truly highly satisfied customers, achieving a recall of 100%.
+
+- **Specificity**:
+  \[
+  \text{Specificity} = \frac{\text{TN}}{\text{TN + FP}} = \frac{269}{269 + 0} = 1.000
+  \]
+  The model is highly effective in identifying customers who are not highly satisfied, with a specificity of 100%.
+
+### Summary:
+
+- **Strengths**:
+  - The Random Forest model achieved perfect accuracy, precision, recall, and specificity.
+  - This indicates that the model was able to perfectly differentiate between highly satisfied and not highly satisfied customers in the test set.
+
+- **Potential Weaknesses**:
+  - While the results are ideal, a 100% accuracy can sometimes indicate overfitting, especially if the model performs exceptionally well on the training data but may not generalize as well to new, unseen data.
+  - Further validation using cross-validation or testing on another dataset might be necessary to confirm its robustness.
+
+- **Overall Performance**:
+  - The Random Forest model provides excellent classification performance on this dataset, perfectly predicting customer satisfaction levels. However, care should be taken to ensure that this performance is consistent and not just a result of overfitting.
+
+
+
+## Evaluation Metrics
+
+```{r}
+# Summarize Evaluation Metrics
+evaluation_summary <- data.frame(
+  Model = c("Naive Bayes", "kNN", "Logistic Regression", "Random Forest"),
+  MSE = c(mse_nb, mse_knn, mse_logreg, mse_rf),
+  AUC = c(auc(roc_naive_bayes), auc(roc_knn), auc(roc_logreg), auc(roc_rf))
+)
+
+# Round the values
+evaluation_summary$MSE <- round(evaluation_summary$MSE, 4)
+evaluation_summary$AUC <- round(evaluation_summary$AUC, 4)
+
+# Print the summary table
+print(evaluation_summary)
+
+
+
+# Plot MSE values
+ggplot(evaluation_summary, aes(x = Model, y = MSE, fill = Model)) +
+  geom_bar(stat = "identity") +
+  theme_minimal() +
+  ggtitle("Mean Squared Error of Models") +
+  ylab("MSE") +
+  xlab("Model") +
+  theme(legend.position = "none")
+```
+
+## ROC and AUC for all models
+
+```{r roc-auc}
+
+# Create a named list of ROC curves
+roc_list <- list(
+  `Naive Bayes` = roc_naive_bayes,
+  `kNN` = roc_knn,
+  `Logistic Regression` = roc_logreg,
+  `Random Forest` = roc_rf
+)
+
+# Plot the ROC curves
+ggroc(roc_list, legacy.axes = TRUE) + 
+  theme_minimal() + 
+  ggtitle("ROC Curves with AUC Values") +
+  geom_abline(linetype = "dashed") +  # Add diagonal line
+  theme(legend.title = element_blank()) +
+  theme(legend.position = c(.7, .3), text = element_text(size = 14)) +
+  scale_color_manual(values = c("blue", "green", "red", "purple"), 
+                     labels = c(
+                       paste("Naive Bayes; AUC =", round(auc(roc_naive_bayes), 3)),
+                       paste("kNN; AUC =", round(auc(roc_knn), 3)),
+                       paste("Logistic Regression; AUC =", round(auc(roc_logreg), 3)),
+                       paste("Random Forest; AUC =", round(auc(roc_rf), 3))
+                     ))
+```
+
+### Interpretation:
+
+- **Naive Bayes**:
+  - **MSE**: 0.0863, indicating a relatively low average squared error in the predictions.
+  - **AUC**: 0.8505, showing a strong ability to distinguish between satisfied and not satisfied customers. It strikes a balance between accuracy and interpretability.
+
+- **k-Nearest Neighbors (kNN)**:
+  - **MSE**: 0.1222, the highest among the models, indicating that the kNN model has a larger average squared error.
+  - **AUC**: 0.6548, which suggests a weaker discriminative ability compared to other models. It struggles more with accurately classifying customer satisfaction.
+
+- **Logistic Regression**:
+  - **MSE**: 0.0753, demonstrating a low prediction error and effective fitting of the data.
+  - **AUC**: 0.8873, indicating high discriminative power. This model offers a good trade-off between simplicity, interpretability, and predictive accuracy.
+
+- **Random Forest**:
+  - **MSE**: 0.0148, the lowest among all models, suggesting it provides the most accurate predictions.
+  - **AUC**: 1.0000, meaning the model perfectly classifies satisfied and not satisfied customers on the test set. While this result is ideal, it may raise concerns about potential overfitting.
+
+### Summary:
+
+- The **Random Forest** model shows the best performance in terms of both MSE and AUC, making it the most accurate predictor for this dataset. However, its perfect AUC warrants further validation to ensure generalizability.
+- **Logistic Regression** offers a robust alternative, with a lower MSE than Naive Bayes and kNN and a strong AUC score.
+- **Naive Bayes** performs reasonably well with a balance of accuracy and error but is less effective than Logistic Regression.
+- **kNN** has the highest MSE and the lowest AUC, making it the least suitable model for predicting customer satisfaction in this case.
+
+
+# Deployment (10 points)
+
+## Summary of Outcomes:
+The analysis of customer satisfaction in the restaurant setting has showed significant insights into the factors that most influence whether customers perceive their dining experience positively. Through a combination of data analysis, predictive modeling, and evaluation metrics, we have identified key drivers of satisfaction, such as service quality, food quality, wait time, and loyalty program membership.
+
+### Answering the Business Question:
+**Business Question**: *What are the main factors that contribute to high customer satisfaction in the restaurant?*
+
+The analysis identified that the primary drivers of high customer satisfaction include **ServiceRating**, **FoodRating**, **AmbianceRating**, **WaitTime**, and **LoyaltyProgramMembership**. Customers are more likely to express high satisfaction when they experience quick and attentive service, high-quality food, a pleasant dining atmosphere, and feel valued through membership programs. By focusing on these areas, the restaurant can maximize customer satisfaction, encourage repeat visits, and foster loyalty.
+
+### Addressing Subquestions:
+**Subquestion 1**: *How can the restaurant predict customer satisfaction based on demographic information and visit-specific variables?*
+
+Using the **Random Forest** model, the restaurant can predict customer satisfaction with high accuracy by incorporating variables such as **Age**, **Income**, **VisitFrequency**, **GroupSize**, and more. The model effectively segments customers based on their likelihood of high satisfaction, allowing for tailored service strategies. For example, the restaurant can anticipate which demographics might require more personalized attention or which dining occasions are likely to yield higher satisfaction.
+
+**Subquestion 2**: *How can we leverage this information to improve service and increase customer loyalty?*
+
+The restaurant can use the insights from predictive models to make strategic adjustments:
+- **Enhancing Service Quality**: Focus on training staff to maintain high standards of service, especially during peak hours.
+- **Targeted Loyalty Programs**: Use predictive insights to customize offers for loyalty members, making them feel valued.
+- **Reducing Wait Times**: Implement strategies to streamline seating arrangements and manage reservations better.
+- **Personalizing Dining Experiences**: Offer special packages or incentives for celebrations, which have been shown to boost satisfaction.
+
+### Testing the Hypotheses:
+Throughout the analysis, several hypotheses were tested, with the results supporting or refuting each:
+
+- **H1**: *ServiceRating and FoodRating will have the strongest positive impact on customer satisfaction.*
+  - **Result**: Supported. Higher ServiceRating and FoodRating were strongly correlated with high satisfaction, indicating that these factors are critical to improving the dining experience.
+
+- **H2**: *Shorter WaitTime will lead to higher customer satisfaction.*
+  - **Result**: Supported. The data showed a clear relationship between reduced wait times and increased satisfaction levels, emphasizing the importance of efficient service.
+
+- **H3**: *The occasion of dining (e.g., celebrations) will impact satisfaction more than regular visits.*
+  - **Result**: Supported. Customers dining for special occasions, such as celebrations, were more likely to report high satisfaction, suggesting an opportunity for targeted marketing and service enhancements during these events.
+
+- **H4**: *Demographics such as Income and Age significantly influence customer satisfaction levels.*
+  - **Result**: Partially supported. While Income was a significant predictor of satisfaction, Age had a less consistent effect, suggesting that other factors, like service quality and loyalty programs, play a more critical role.
+
+- **H5**: *VisitFrequency and LoyaltyProgramMembership will predict higher satisfaction levels.*
+  - **Result**: Supported. Frequent visitors and loyalty program members tended to have higher satisfaction scores, highlighting the value of fostering customer loyalty.
+
+- **H6**: *Improving ServiceRating and reducing WaitTime will lead to an increase in LoyaltyProgramMembership and VisitFrequency.*
+  - **Result**: Supported. Enhancements in service and shorter wait times were correlated with increased loyalty membership and more frequent visits, indicating that satisfied customers are more likely to return and join loyalty programs.
+
+- **H7**: *Personalized rewards for loyalty members will increase AverageSpend and frequency of visits.*
+  - **Result**: Supported. Tailored rewards for loyalty members contributed to higher AverageSpend and more frequent visits, demonstrating the effectiveness of personalization in driving customer engagement.
+
+### Actionable Recommendations:
+Based on the insights from this study, the restaurant can take the following actions to enhance customer satisfaction and loyalty:
+
+1. **Focus on Service and Food Quality**: As the analysis indicates, higher ServiceRating and FoodRating scores are strongly correlated with increased customer satisfaction. The restaurant should prioritize continuous staff training to improve responsiveness and friendliness, and ensure that food quality meets or exceeds customer expectations.
+
+2. **Personalize Loyalty Program Offers**: The data revealed that members of the loyalty program tend to show higher satisfaction and are more likely to return. The restaurant should provide targeted offers and rewards to loyalty program members, such as birthday discounts or offers tailored to their dining preferences. This personalization can increase engagement and drive repeat visits.
+
+3. **Optimize Wait Time Management**: Wait time was a significant predictor of satisfaction. Implementing systems to better manage reservations and optimize table turnover can help reduce perceived wait times. This might include using online reservation systems more effectively or training staff to manage seating more efficiently during peak times.
+
+4. **Enhance the Experience for Special Occasions**: Customers dining for celebrations tend to have a higher satisfaction level. The restaurant could capitalize on this by offering special packages or complementary services for birthdays, anniversaries, or other celebrations, further encouraging customers to choose the restaurant for important events.
+
+5. **Deploying the Random Forest Model in Operations**: Given its high accuracy, the Random Forest model can be integrated into the restaurant's decision-making process. This model could be used to predict satisfaction scores for upcoming reservations, allowing the restaurant to allocate resources (such as additional staff or promotional offers) more effectively during peak times or for high-value customers.
+
+### Implementation in the Business Market:
+After thorough evaluation, the Random Forest and/or Logistic Regression model is well-suited for deployment to support strategic decisions in the restaurant. For implementation, the restaurant can take the following steps:
+
+- Integrate the predictive model into the reservation system to identify high-value customers and those at risk of dissatisfaction.
+- Use insights from the model to guide marketing campaigns, such as targeted promotions for loyalty program members with a high likelihood of returning.
+
+
+# References
+
+- Gupta, S., Hanssens, D., Hardie, B., Kahn, W., Kumar, V., Lin, N., Ravishanker, N., & Sriram, S. (2006). *Modeling customer lifetime value*. Journal of Service Research, 9(2), 139–155. [https://doi.org/10.1177/1094670506293810](https://doi.org/10.1177/1094670506293810)
+
+- IBM. (2024a, August 9). *Naive Bayes*. IBM. [https://www.ibm.com/topics/naive-bayes](https://www.ibm.com/topics/naive-bayes)
+
+- IBM. (2024b, October 2). *Random Forest*. IBM. [https://www.ibm.com/topics/random-forest#:~:text=Random%20forest%20is%20a%20commonly,Decision%20trees](https://www.ibm.com/topics/random-forest#:~:text=Random%20forest%20is%20a%20commonly,Decision%20trees)
+
+- IBM. (2024c, October 3). *Logistic Regression*. IBM. [https://www.ibm.com/topics/logistic-regression](https://www.ibm.com/topics/logistic-regression)
+
+- IBM. (2024d, October 17). *KNN*. IBM. [https://www.ibm.com/topics/knn](https://www.ibm.com/topics/knn)
+
+- Kamakura, W. A., Mittal, V., De Rosa, F., & Mazzon, J. A. (2002). *Assessing the Service-Profit chain*. Marketing Science, 21(3), 294–317. [https://doi.org/10.1287/mksc.21.3.294.140](https://doi.org/10.1287/mksc.21.3.294.140)
+
+- Kim, G. (2013). *Applying Service Profit Chain model to the Korean restaurant industry*. International Journal of Hospitality Management, 36, 1–13. [https://doi.org/10.1016/j.ijhm.2013.07.008](https://doi.org/10.1016/j.ijhm.2013.07.008)
+
+- *Putting the Service-Profit chain to work*. (2016, March 28). Harvard Business Review. [https://hbr.org/2008/07/putting-the-service-profit-chain-to-work](https://hbr.org/2008/07/putting-the-service-profit-chain-to-work)
+
+- Reichheld, F.F., & Sasser, E. (1990). *Zero defections: Quality comes to Services*. Harvard Business Review, 68, 105-111. - References - Scientific Research Publishing. (n.d.). [https://www.scirp.org/reference/referencespapers?referenceid=1937438](https://www.scirp.org/reference/referencespapers?referenceid=1937438)
+
+- Seufert, E. B. (2014). *Quantitative methods for product management*. In Elsevier eBooks (pp. 47–82). [https://doi.org/10.1016/b978-0-12-416690-5.00003-8](https://doi.org/10.1016/b978-0-12-416690-5.00003-8)
+
+
